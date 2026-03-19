@@ -1,289 +1,167 @@
-# Vancomycin TDM Calculator
+# 반코마이신 TDM 계산기
 
-반코마이신 치료적 약물 모니터링(TDM) 계산기 - 웹 기반 약동학 분석 도구
+반코마이신 치료적 약물 모니터링(Therapeutic Drug Monitoring) 웹 계산기입니다.
+환자 정보와 실측 혈중 농도를 입력하면 베이지안 방법으로 개인화된 약동학 파라미터를 추정하고, AUC 기반 용량 조절 권장사항을 제공합니다.
 
----
-
-## ⚠️ 중요 공지
-
-> **🚧 개발 중인 프로토타입입니다**
->
-> 이 소프트웨어는 현재 **개발 및 검증 단계**에 있으며, 아직 임상 환경에서 사용할 수 없습니다.
->
-> - ❌ **임상 사용 금지**: 실제 환자 치료에 사용할 수 없습니다
-> - 🔬 **평가 필요**: 임상적 타당성 검증이 완료되지 않았습니다
-> - 📚 **교육 목적 전용**: 학습 및 연구 목적으로만 사용 가능합니다
-> - ⚡ **알고리즘 변경 가능**: 계산 방법론이 예고 없이 변경될 수 있습니다
->
-> 임상 환경에서의 사용을 위해서는 다음이 필요합니다:
-> - 전문가 검토 및 검증
-> - 임상 시험 및 성능 평가
-> - 의료기기 규제 승인 (해당 시)
-> - 기관 내 검증 및 승인
+**배포 주소**: https://qutechoi.github.io/0319_New_TDM/
 
 ---
 
-## 📋 목차
+## ⚠️ 주의 사항
 
-- [⚠️ 중요 공지](#️-중요-공지)
-- [소개](#소개)
-- [주요 기능](#주요-기능)
-- [사용 방법](#사용-방법)
-- [계산 방법론](#계산-방법론)
-- [기술 스택](#기술-스택)
-- [설치 및 실행](#설치-및-실행)
-- [주의사항](#주의사항)
-- [라이선스](#라이선스)
+이 도구는 **교육 및 연구 목적**으로만 제작되었습니다.
+임상 환경에서 실제 환자 치료에 사용하지 마십시오.
+모든 투약 결정은 자격을 갖춘 의료 전문가가 내려야 합니다.
 
-## 소개
-
-Vancomycin TDM Calculator는 반코마이신의 약동학 파라미터를 계산하고 최적의 투약 용량을 제안하는 웹 기반 도구입니다. 실제 측정된 혈중 농도를 바탕으로 개인화된 약동학 파라미터를 추정하고, AUC 기반의 용량 조절을 권장합니다.
-
-### 현재 대상 (개발/평가 단계)
-
-- 약학 및 의학 교육용
-- 연구 및 개발 목적
-- 알고리즘 검증 및 테스트
-- 프로토타입 평가
-
-**참고**: 임상 현장에서의 실제 사용은 검증 완료 후 가능합니다.
+---
 
 ## 주요 기능
 
-### 🎯 핵심 기능
-
-- **개인화된 PK 파라미터 추정**: Bayesian 접근법을 사용한 환자 맞춤형 파라미터 계산
-- **AUC 기반 용량 조절**: 최신 가이드라인에 따른 AUC 24시간 목표 달성
-- **시각화**: 농도-시간 곡선 그래프로 약동학 프로파일 확인
-- **실시간 계산**: 즉각적인 결과 및 권장사항 제공
-
-### 🎨 사용자 인터페이스
-
-- **다크/브라이트 테마**: 눈의 피로를 줄이는 테마 전환 기능
-- **다국어 지원**: 한국어/영어 완전 지원
-- **반응형 디자인**: 데스크톱, 태블릿, 모바일 모두 지원
-- **직관적인 UI**: 깔끔하고 전문적인 인터페이스
-
-### 📊 계산 결과
-
-- AUC (24시간)
-- Trough 농도 (Cmin)
-- Clearance (청소율)
-- Half-life (반감기)
-- Peak/Trough 시각화
-- 측정값 표시
-
-## 사용 방법
-
-### 1. 환자 정보 입력
-
-**환자 인구통계**
-- 나이 (세)
-- 성별
-- 키 (cm)
-- 체중 (kg)
-- 혈청 크레아티닌 (mg/dL)
-
-### 2. 투약 정보 입력
-
-**현재 투약 요법**
-- 용량 (mg)
-- 투약 간격 (시간)
-- 첫 투약 시간
-
-### 3. 모니터링 데이터 입력
-
-**측정 정보**
-- 채혈 시간
-- 측정된 농도 (mg/L) - 실제 혈액 검사 결과
-
-### 4. 결과 확인
-
-**분석 결과**
-- 주요 약동학 지표
-- 농도-시간 곡선 그래프
-- 임상적 해석
-- 용량 권장사항
-
-## 계산 방법론
-
-### Population Pharmacokinetics
-
-**Cockcroft-Gault 공식** (크레아티닌 청소율)
-```
-CrCl = ((140 - 나이) × 체중) / (72 × SCr)
-여성의 경우 × 0.85
-```
-
-**Matzke 방정식** (제거 속도 상수)
-```
-Kel = 0.00083 × CrCl + 0.0044
-```
-
-**분포용적 (Vd)**
-```
-Vd = 0.7 L/kg (총 체중 기준)
-```
-
-### Bayesian 개인화
-
-측정된 농도와 예측 농도를 비교하여 개인별 약동학 파라미터를 조정합니다:
-
-```
-Vd(개인화) = Vd(집단) × (C(예측) / C(측정))
-```
-
-### AUC 계산
-
-정상상태(Steady State) 가정:
-```
-AUC24 = 일일 총 투여량 / Clearance
-Clearance = Kel × Vd
-```
-
-### 권장사항 기준
-
-- **목표 AUC**: 400-600 mg·h/L
-- **목표 Trough**: 10-20 mg/L
-- **독성 위험**: AUC > 600 또는 Trough > 20
-
-## 기술 스택
-
-### Frontend
-
-- **HTML5**: 시맨틱 마크업
-- **CSS3**:
-  - CSS Variables (테마 시스템)
-  - Flexbox & Grid Layout
-  - 반응형 디자인
-- **JavaScript (ES6+)**:
-  - Vanilla JS (프레임워크 없음)
-  - 약동학 계산 로직
-  - DOM 조작 및 이벤트 처리
-
-### 라이브러리
-
-- **Chart.js 4.4.1**: 농도-시간 곡선 시각화
-- **Google Fonts (Inter)**: 전문적인 타이포그래피
-
-### 데이터 저장
-
-- **LocalStorage**: 테마 및 언어 설정 저장
-
-## 설치 및 실행
-
-### 요구사항
-
-- 최신 웹 브라우저 (Chrome, Firefox, Safari, Edge)
-- 인터넷 연결 (Chart.js CDN 로드용)
-
-### 로컬 실행
-
-1. **저장소 클론**
-```bash
-git clone <repository-url>
-cd 0113_simple_TDM
-```
-
-2. **브라우저에서 열기**
-```bash
-# 방법 1: 직접 열기
-open index.html
-
-# 방법 2: 로컬 서버 사용 (권장)
-python -m http.server 8000
-# 브라우저에서 http://localhost:8000 접속
-```
-
-### 파일 구조
-
-```
-0113_simple_TDM/
-├── index.html          # 메인 HTML 파일
-├── style.css           # 스타일시트
-├── script.js           # JavaScript 로직
-├── .gitignore          # Git 제외 파일
-└── README.md           # 프로젝트 문서
-```
-
-## 사용 예시
-
-### 시나리오 1: Trough 측정
-
-**환자 정보**
-- 65세 남성, 170cm, 70kg
-- SCr: 1.2 mg/dL
-
-**투약 정보**
-- Vancomycin 1000mg q12h
-- 첫 투약: 2026-01-13 08:00
-
-**측정 정보**
-- 채혈 시간: 2026-01-13 19:00 (투약 후 11시간)
-- 측정 농도: 12.5 mg/L
-
-**결과**
-- 개인화된 PK 파라미터 계산
-- 정상상태 AUC 및 Trough 예측
-- 용량 조절 권장사항
-
-### 시나리오 2: Peak 측정
-
-**측정 정보**
-- 채혈 시간: 2026-01-13 09:00 (투약 후 1시간)
-- 측정 농도: 28.3 mg/L
-
-**결과**
-- Peak 농도 기반 Vd 추정
-- 향후 Trough 예측
-- 투약 간격 조절 제안
-
-## 주의사항
-
-### ⚠️ 의료 면책 조항
-
-이 계산기는 **교육 및 참고 목적**으로만 제공됩니다:
-
-- 실제 임상 의사결정의 **보조 도구**로만 사용해야 합니다
-- 전문 의료인의 판단을 대체할 수 없습니다
-- 계산 결과는 환자의 임상 상태와 함께 종합적으로 평가되어야 합니다
-- 모든 투약 결정은 자격을 갖춘 의료 전문가가 내려야 합니다
-
-### 📝 제한사항
-
-- Population PK 모델 기반이므로 개인차가 있을 수 있습니다
-- 신기능 급변 환자에서는 정확도가 떨어질 수 있습니다
-- 비만, 복수, 화상 환자 등 특수 상황에서는 추가 고려가 필요합니다
-- 단일 측정값만 사용하므로 2-point 측정보다 정확도가 낮을 수 있습니다
-
-## 향후 개발 계획
-
-- [ ] 2-point PK 측정 지원
-- [ ] PDF 리포트 생성 기능
-- [ ] 과거 측정 데이터 저장 및 추적
-- [ ] 다양한 Population PK 모델 선택 옵션
-- [ ] 신기능 변화 추세 반영
-- [ ] 단위 변환 기능 (μg/mL ↔ mg/L)
-- [ ] 용량 시뮬레이션 기능
-
-## 기여하기
-
-버그 리포트, 기능 제안, 코드 기여를 환영합니다!
-
-## 참고 문헌
-
-1. Rybak MJ, et al. Therapeutic monitoring of vancomycin for serious methicillin-resistant Staphylococcus aureus infections. Am J Health Syst Pharm. 2020;77(11):835-864.
-
-2. Matzke GR, et al. Pharmacokinetics of vancomycin in patients with various degrees of renal function. Antimicrob Agents Chemother. 1984;25(4):433-437.
-
-3. Cockcroft DW, Gault MH. Prediction of creatinine clearance from serum creatinine. Nephron. 1976;16(1):31-41.
-
-## 라이선스
-
-이 프로젝트는 교육 및 참고 목적으로 제공됩니다.
+### 약동학 계산
+- **성인**: Cockcroft-Gault 공식으로 크레아티닌 청소율 계산, Matzke 방정식으로 제거 속도 상수 추정
+- **소아 (18세 미만)**: Schwartz 공식으로 소아 크레아티닌 청소율 계산 (연령별 k값 자동 적용)
+- 이상 체중(IBW) · 조정 체중(AdjBW) 자동 계산
+- AUC24, Trough, 반감기, 청소율 결과 제공
+
+### 베이지안 파라미터 피팅
+- 측정 농도 1개: 단일 포인트 Vd 보정
+- 측정 농도 2개 이상: Nelder-Mead Simplex 최적화로 다중 포인트 베이지안 피팅
+- 피팅 품질 지표 표시 (우수 / 적절 / 불량)
+
+### 용량 시뮬레이션
+- 특정 용량 · 투약 간격 입력 시 예상 AUC · Trough 미리 계산
+- 다양한 용량 옵션별 상태 표시 (최적 / 적절 / 치료 미달 / 독성 위험)
+
+### 편의 기능
+- 데이터 저장 · 불러오기 · 초기화 (브라우저 localStorage)
+- 결과 인쇄
+- 다크 / 브라이트 테마
+- 한국어 / 영어 전환
+- PWA 지원 (홈 화면 추가 가능)
 
 ---
 
-**개발**: Claude Sonnet 4.5
-**버전**: 1.0.0
-**최종 업데이트**: 2026-01-13
+## 계산 방법론
+
+### 성인 PK
+
+| 항목 | 공식 |
+|------|------|
+| 크레아티닌 청소율 | Cockcroft-Gault: `CrCl = ((140 - 나이) × 체중) / (72 × SCr)` (여성 × 0.85) |
+| 제거 속도 상수 | Matzke: `Kel = 0.00083 × CrCl + 0.0044` |
+| 분포 용적 | `Vd = 0.7 L/kg` |
+| AUC24 | `AUC24 = 일일 총 투여량 / (Kel × Vd)` |
+
+### 소아 PK (18세 미만)
+
+Schwartz 공식으로 CrCl 계산: `CrCl = k × 키(cm) / SCr`
+
+| 연령 | k값 |
+|------|-----|
+| 1세 미만 (영아) | 0.45 |
+| 1 ~ 12세 | 0.55 |
+| 13 ~ 17세 남자 청소년 | 0.70 |
+| 13 ~ 17세 여자 청소년 | 0.55 |
+
+### 목표 범위
+
+| 지표 | 목표 | 판정 |
+|------|------|------|
+| AUC24 | 400 ~ 600 mg·h/L | 미만: 증량 검토 / 초과: 감량 검토 |
+| Trough | 10 ~ 20 mg/L | 참고 지표 |
+
+---
+
+## 사용 방법
+
+1. **환자 정보 입력**
+   나이(세/개월), 성별, 키, 체중, 혈청 크레아티닌 입력
+   → 18세 미만이면 소아 모드 자동 전환
+
+2. **투약 정보 입력**
+   용량(mg), 투약 간격(시간), 첫 투약 시간 입력
+
+3. **측정 농도 입력**
+   채혈 시간과 실측 혈중 농도(mg/L) 입력
+   (2개 이상 입력 시 베이지안 피팅 정확도 향상)
+
+4. **계산 & 분석 클릭**
+   AUC, Trough, 농도-시간 곡선, 용량 권장사항 확인
+
+5. **용량 시뮬레이션 (선택)**
+   원하는 용량·간격을 입력해 예상 결과 미리 확인
+
+---
+
+## 로컬 실행 방법
+
+### 요구사항
+- Node.js 18 이상
+- 최신 웹 브라우저
+
+### 설치 및 실행
+
+```bash
+# 저장소 클론
+git clone https://github.com/qutechoi/0319_New_TDM.git
+cd 0319_New_TDM
+
+# 패키지 설치
+npm install
+
+# 개발 서버 실행 (http://localhost:3000)
+npm run dev
+
+# 프로덕션 빌드
+npm run build
+
+# 단위 테스트 실행
+npm test
+```
+
+### 프로젝트 구조
+
+```
+0319_New_TDM/
+├── index.html              # 메인 HTML
+├── style.css               # 스타일시트
+├── manifest.json           # PWA 매니페스트
+├── sw.js                   # 서비스 워커
+├── vite.config.js          # Vite 빌드 설정
+├── js/
+│   ├── app.js              # 앱 진입점 및 UI 로직
+│   ├── pk-calculations.js  # 약동학 계산 함수 (성인 + 소아)
+│   ├── bayesian-fitting.js # 베이지안 파라미터 피팅
+│   ├── chart.js            # 농도-시간 곡선 차트
+│   ├── validation.js       # 입력값 유효성 검사
+│   └── i18n.js             # 한국어/영어 번역
+├── tests/
+│   ├── pk-calculations.test.js   # PK 계산 단위 테스트 (48개)
+│   └── bayesian-fitting.test.js  # 베이지안 피팅 단위 테스트 (20개)
+└── .github/workflows/
+    └── deploy.yml          # GitHub Actions 자동 배포
+```
+
+---
+
+## 기술 스택
+
+- **프론트엔드**: Vanilla JavaScript (ES Modules), HTML5, CSS3
+- **차트**: Chart.js 4.4
+- **빌드**: Vite 6 + esbuild
+- **배포**: GitHub Pages (GitHub Actions 자동 배포)
+- **PWA**: Service Worker + Web App Manifest
+
+---
+
+## 참고 문헌
+
+1. Rybak MJ, et al. Therapeutic monitoring of vancomycin for serious MRSA infections. *Am J Health Syst Pharm.* 2020;77(11):835-864.
+2. Matzke GR, et al. Pharmacokinetics of vancomycin in patients with various degrees of renal function. *Antimicrob Agents Chemother.* 1984;25(4):433-437.
+3. Cockcroft DW, Gault MH. Prediction of creatinine clearance from serum creatinine. *Nephron.* 1976;16(1):31-41.
+4. Schwartz GJ, et al. New equations to estimate GFR in children with CKD. *J Am Soc Nephrol.* 2009;20(3):629-637.
+5. Devine BJ. Gentamicin therapy. *Drug Intell Clin Pharm.* 1974;8:650-655.
+
+---
+
+**버전**: 1.1.0
