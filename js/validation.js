@@ -3,12 +3,13 @@
 import { translations, getLang } from './i18n.js';
 
 export const validationRules = {
-    age:      { min: 18,  max: 120, key: 'valAgeRange' },
-    height:   { min: 100, max: 250, key: 'valHeightRange' },
-    weight:   { min: 20,  max: 300, key: 'valWeightRange' },
-    scr:      { min: 0.1, max: 15,  key: 'valScrRange' },
-    dose:     { min: 100, max: 5000, key: 'valDoseRange' },
-    interval: { min: 4,   max: 72,  key: 'valIntervalRange' }
+    ageYears:  { min: 0,   max: 120, key: 'valAgeRange' },
+    ageMonths: { min: 0,   max: 11,  key: 'valAgeMonthsRange' },
+    height:    { min: 20,  max: 250, key: 'valHeightRange' },
+    weight:    { min: 0.5, max: 300, key: 'valWeightRange' },
+    scr:       { min: 0.1, max: 15,  key: 'valScrRange' },
+    dose:      { min: 1,   max: 5000, key: 'valDoseRange' },
+    interval:  { min: 4,   max: 72,  key: 'valIntervalRange' }
 };
 
 /**
@@ -81,9 +82,9 @@ export function validateAllInputs(inputs) {
         warnings.push(t.valDoseWarning);
     }
 
-    const age = parseFloat(inputs.age.value);
+    const ageYears = parseInt((inputs.ageYears || inputs.age || {}).value) || 0;
     const scr = parseFloat(inputs.scr.value);
-    if ((age && age > 85) || (weight && weight > 150) || (scr && scr < 0.4)) {
+    if ((ageYears > 85) || (weight && weight > 150) || (scr && scr < 0.4)) {
         warnings.push(t.valCrclWarning);
     }
 

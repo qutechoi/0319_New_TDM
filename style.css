@@ -989,6 +989,36 @@ input:-webkit-autofill:active {
     }
 }
 
+/* Age Input Row */
+.age-input-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.age-field {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.age-field input {
+    flex: 1;
+    min-width: 0;
+}
+
+.age-unit {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#pediatricHint {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
 /* Focus visible for accessibility */
 :focus-visible {
     outline: 2px solid var(--primary-color);

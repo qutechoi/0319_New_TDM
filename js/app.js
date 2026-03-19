@@ -39,7 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     const calculateBtn = document.getElementById('calculateBtn');
     const inputs = {
-        age: document.getElementById('age'),
+        ageYears: document.getElementById('ageYears'),
+        ageMonths: document.getElementById('ageMonths'),
         sex: document.getElementById('sex'),
         height: document.getElementById('height'),
         weight: document.getElementById('weight'),
@@ -48,6 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
         interval: document.getElementById('interval'),
         startTime: document.getElementById('startTime')
     };
+    const pediatricHint = document.getElementById('pediatricHint');
+
+    // Show/hide pediatric hint based on age
+    function updatePediatricHint() {
+        const years = parseInt(inputs.ageYears.value) || 0;
+        pediatricHint.style.display = years < 18 ? 'block' : 'none';
+    }
+    inputs.ageYears.addEventListener('input', updatePediatricHint);
+    inputs.ageMonths.addEventListener('input', updatePediatricHint);
 
     const outputs = {
         aucValue: document.getElementById('aucValue'),
@@ -188,7 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = getT();
         const lang = getLang();
 
-        const age = parseFloat(inputs.age.value);
+        const ageYears = parseInt(inputs.ageYears.value) || 0;
+        const ageMonths = parseInt(inputs.ageMonths.value) || 0;
+        const age = ageYears + ageMonths / 12; // fractional age in years
         const sex = inputs.sex.value;
         const height = parseFloat(inputs.height.value);
         const weight = parseFloat(inputs.weight.value);
@@ -197,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const interval = parseFloat(inputs.interval.value);
         const startTime = new Date(inputs.startTime.value);
 
-        if (!age || !height || !weight || !scr || !dose || !interval || !inputs.startTime.value) {
+        if (inputs.ageYears.value === '' || !height || !weight || !scr || !dose || !interval || !inputs.startTime.value) {
             alert(t.fillAllFields);
             return;
         }
@@ -535,6 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        updatePediatricHint();
         alert(t.dataLoaded);
     }
 

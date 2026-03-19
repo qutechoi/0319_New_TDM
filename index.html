@@ -88,8 +88,18 @@
                     <div class="form-group-title" data-i18n="patientDemo">Patient Demographics</div>
                     <div class="grid-2">
                         <div class="input-group">
-                            <label for="age" data-i18n="age">Age (years)</label>
-                            <input type="number" id="age" required min="18" data-placeholder="agePlaceholder">
+                            <label data-i18n="age">Age</label>
+                            <div class="age-input-row">
+                                <div class="age-field">
+                                    <input type="number" id="ageYears" required min="0" max="120" data-placeholder="ageYearsPlaceholder">
+                                    <span class="age-unit" data-i18n="ageYearsUnit">years</span>
+                                </div>
+                                <div class="age-field">
+                                    <input type="number" id="ageMonths" min="0" max="11" data-placeholder="ageMonthsPlaceholder">
+                                    <span class="age-unit" data-i18n="ageMonthsUnit">months</span>
+                                </div>
+                            </div>
+                            <small class="hint" id="pediatricHint" style="display:none;" data-i18n="pediatricHint">Pediatric mode: Schwartz equation will be used</small>
                         </div>
                         <div class="input-group">
                             <label for="sex" data-i18n="sex">Sex</label>
@@ -100,11 +110,11 @@
                         </div>
                         <div class="input-group">
                             <label for="height" data-i18n="height">Height (cm)</label>
-                            <input type="number" id="height" required min="100" data-placeholder="heightPlaceholder">
+                            <input type="number" id="height" required min="20" data-placeholder="heightPlaceholder">
                         </div>
                         <div class="input-group">
                             <label for="weight" data-i18n="weight">Weight (kg)</label>
-                            <input type="number" id="weight" required min="30" data-placeholder="weightPlaceholder">
+                            <input type="number" id="weight" required min="0.5" step="0.1" data-placeholder="weightPlaceholder">
                         </div>
                         <div class="input-group full-width">
                             <label for="scr" data-i18n="scr">Serum Creatinine (mg/dL)</label>

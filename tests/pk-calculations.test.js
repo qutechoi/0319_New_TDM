@@ -12,7 +12,11 @@ import {
     calculateAUC24,
     calculateHalfLife,
     calculatePopulationPK,
-    predictConcentration
+    predictConcentration,
+    isPediatric,
+    calculateSchwartzCrCl,
+    calculateVdPopPediatric,
+    calculatePediatricPK
 } from '../js/pk-calculations.js';
 
 let passed = 0;
@@ -25,6 +29,16 @@ function assertEqual(actual, expected, tolerance, testName) {
     } else {
         failed++;
         console.error(`  FAIL: ${testName} — expected ${expected}, got ${actual}`);
+    }
+}
+
+function assertTrue(condition, testName) {
+    if (condition) {
+        passed++;
+        console.log(`  PASS: ${testName}`);
+    } else {
+        failed++;
+        console.error(`  FAIL: ${testName}`);
     }
 }
 
@@ -177,6 +191,74 @@ if (aucElderly > aucNormal) {
 const auc500 = calculateAUC24(500, 12, pkNormal.kel * pkNormal.vd);
 const auc1000 = calculateAUC24(1000, 12, pkNormal.kel * pkNormal.vd);
 assertEqual(auc1000 / auc500, 2.0, 0.01, 'AUC is dose-proportional');
+
+// =====================================================
+// Test Suite: Pediatric Detection
+// =====================================================
+console.log('\n=== Pediatric Detection ===');
+
+assertTrue(isPediatric(0.5), 'Infant (6mo) is pediatric');
+assertTrue(isPediatric(5), 'Child (5y) is pediatric');
+assertTrue(isPediatric(17), 'Adolescent (17y) is pediatric');
+assertTrue(!isPediatric(18), 'Adult (18y) is not pediatric');
+assertTrue(!isPediatric(65), 'Adult (65y) is not pediatric');
+
+// =====================================================
+// Test Suite: Schwartz CrCl
+// =====================================================
+console.log('\n=== Schwartz CrCl (Pediatric) ===');
+
+// Infant 6mo, 65cm, SCr=0.3: k=0.45, CrCl = 0.45*65/0.3 = 97.5
+assertEqual(calculateSchwartzCrCl(0.5, 65, 0.3, 'male'), 97.5, 0.1, 'Infant 6mo Schwartz CrCl');
+
+// Child 5y, 110cm, SCr=0.5: k=0.55, CrCl = 0.55*110/0.5 = 121.0
+assertEqual(calculateSchwartzCrCl(5, 110, 0.5, 'male'), 121.0, 0.1, 'Child 5y Schwartz CrCl');
+
+// Adolescent male 15y, 170cm, SCr=0.8: k=0.70, CrCl = 0.70*170/0.8 = 148.75
+assertEqual(calculateSchwartzCrCl(15, 170, 0.8, 'male'), 148.75, 0.1, 'Adolescent male Schwartz CrCl');
+
+// Adolescent female 15y, 160cm, SCr=0.7: k=0.55, CrCl = 0.55*160/0.7 = 125.71
+assertEqual(calculateSchwartzCrCl(15, 160, 0.7, 'female'), 125.71, 0.1, 'Adolescent female Schwartz CrCl');
+
+// =====================================================
+// Test Suite: Pediatric Vd
+// =====================================================
+console.log('\n=== Pediatric Vd ===');
+
+// Neonate 0.02y (1 week), 3.5kg: Vd = 0.6 * 3.5 = 2.1
+assertEqual(calculateVdPopPediatric(3.5, 0.02), 2.1, 0.1, 'Neonate Vd (0.6 L/kg)');
+
+// Infant 6mo, 7kg: Vd = 0.7 * 7 = 4.9
+assertEqual(calculateVdPopPediatric(7, 0.5), 4.9, 0.1, 'Infant 6mo Vd (0.7 L/kg)');
+
+// Child 5y, 20kg: Vd = 0.7 * 20 = 14.0
+assertEqual(calculateVdPopPediatric(20, 5), 14.0, 0.1, 'Child 5y Vd (0.7 L/kg)');
+
+// =====================================================
+// Test Suite: Integrated Pediatric PK
+// =====================================================
+console.log('\n=== Integrated Pediatric PK ===');
+
+// Infant 6mo, male, 65cm, 7kg, SCr=0.3
+const pkInfant = calculatePopulationPK(0.5, 'male', 65, 7, 0.3);
+assertTrue(pkInfant.pediatric === true, 'Infant flagged as pediatric');
+assertRange(pkInfant.crcl, 90, 110, 'Infant CrCl via Schwartz');
+assertRange(pkInfant.vd, 4, 6, 'Infant Vd in range');
+assertRange(pkInfant.kel, 0.05, 0.15, 'Infant Kel in range');
+
+// Child 8y, female, 130cm, 25kg, SCr=0.5
+const pkChild = calculatePopulationPK(8, 'female', 130, 25, 0.5);
+assertTrue(pkChild.pediatric === true, 'Child flagged as pediatric');
+assertRange(pkChild.crcl, 130, 160, 'Child CrCl via Schwartz');
+assertRange(pkChild.vd, 15, 20, 'Child Vd in range');
+
+// Adult (should still use adult pathway)
+const pkAdult = calculatePopulationPK(50, 'male', 175, 75, 0.9);
+assertTrue(pkAdult.pediatric === false, 'Adult flagged as non-pediatric');
+
+// Pediatric AUC scenario: infant on 10mg/kg q8h = 70mg q8h
+const aucInfant = calculateAUC24(70, 8, pkInfant.cl);
+assertRange(aucInfant, 200, 800, 'Infant AUC in reasonable range for 10mg/kg q8h');
 
 // =====================================================
 // Summary

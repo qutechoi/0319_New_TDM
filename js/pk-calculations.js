@@ -78,9 +78,60 @@ export function calculateHalfLife(kel) {
 }
 
 /**
- * Calculate all population PK parameters for a patient
+ * Determine if patient is pediatric (< 18 years)
+ */
+export function isPediatric(ageInYears) {
+    return ageInYears < 18;
+}
+
+/**
+ * Calculate Schwartz CrCl for pediatric patients
+ * CrCl (mL/min/1.73m²) = k × Height(cm) / SCr(mg/dL)
+ *
+ * k values:
+ * - Preterm neonate: 0.33
+ * - Full-term neonate (< 1 year): 0.45
+ * - Child 1-12 years: 0.55
+ * - Adolescent female 13-17: 0.55
+ * - Adolescent male 13-17: 0.70
+ */
+export function calculateSchwartzCrCl(ageInYears, height, scr, sex) {
+    let k;
+    if (ageInYears < 1) {
+        k = 0.45; // full-term infant
+    } else if (ageInYears <= 12) {
+        k = 0.55;
+    } else {
+        // adolescent 13-17
+        k = sex === 'male' ? 0.70 : 0.55;
+    }
+    return (k * height) / scr;
+}
+
+/**
+ * Calculate pediatric population Vd
+ * Neonates/infants tend to have higher Vd per kg
+ * - Neonate (< 1 month): 0.5-0.7 L/kg
+ * - Infant (1 month - 1 year): 0.7 L/kg
+ * - Child (1-12 years): 0.7 L/kg
+ * - Adolescent: 0.7 L/kg
+ */
+export function calculateVdPopPediatric(weight, ageInYears) {
+    if (ageInYears < 1 / 12) {
+        return 0.6 * weight; // neonates
+    }
+    return 0.7 * weight; // infants and children same as adult per-kg
+}
+
+/**
+ * Calculate all population PK parameters for a patient (adult or pediatric)
+ * @param {number} age - Age in years (can be fractional, e.g. 0.5 for 6 months)
  */
 export function calculatePopulationPK(age, sex, height, weight, scr) {
+    if (isPediatric(age)) {
+        return calculatePediatricPK(age, sex, height, weight, scr);
+    }
+
     const ibw = calculateIBW(sex, height);
     const adjBw = calculateAdjBW(ibw, weight);
     const weightForCrCl = getWeightForCrCl(weight, ibw, adjBw);
@@ -89,7 +140,28 @@ export function calculatePopulationPK(age, sex, height, weight, scr) {
     const vd = calculateVdPop(weight);
     const cl = kel * vd;
 
-    return { ibw, adjBw, crcl, kel, vd, cl, halfLife: calculateHalfLife(kel) };
+    return { ibw, adjBw, crcl, kel, vd, cl, halfLife: calculateHalfLife(kel), pediatric: false };
+}
+
+/**
+ * Calculate population PK for pediatric patients
+ */
+export function calculatePediatricPK(age, sex, height, weight, scr) {
+    const crcl = calculateSchwartzCrCl(age, height, scr, sex);
+    const kel = calculateKelPop(crcl);
+    const vd = calculateVdPopPediatric(weight, age);
+    const cl = kel * vd;
+
+    return {
+        ibw: weight, // not applicable for pediatrics
+        adjBw: weight,
+        crcl,
+        kel,
+        vd,
+        cl,
+        halfLife: calculateHalfLife(kel),
+        pediatric: true
+    };
 }
 
 /**
