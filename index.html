@@ -21,6 +21,11 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Vancomycin TDM Calculator - Bayesian pharmacokinetic analysis for educational use">
+    <meta name="theme-color" content="#0ea5e9">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Vancomycin TDM Calculator</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -28,7 +33,8 @@
 </head>
 
 <body>
-    <div class="container">
+    <a href="#tdmForm" class="skip-link">Skip to calculator</a>
+    <div class="container" role="application" aria-label="Vancomycin TDM Calculator">
         <header>
             <h1 data-i18n="title">Vancomycin TDM Calculator</h1>
             <p data-i18n="subtitle">Therapeutic Drug Monitoring & Dosage Recommendation</p>
@@ -52,7 +58,28 @@
             </button>
         </div>
 
-        <main class="grid-layout">
+        <div class="action-bar">
+            <button id="saveDataBtn" class="action-btn" title="Save patient data" aria-label="Save patient data">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                </svg>
+                <span data-i18n="saveData">Save Data</span>
+            </button>
+            <button id="loadDataBtn" class="action-btn" title="Load patient data" aria-label="Load patient data">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                </svg>
+                <span data-i18n="loadData">Load Data</span>
+            </button>
+            <button id="printBtn" class="action-btn" title="Print results" aria-label="Print results">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                </svg>
+                <span data-i18n="printResults">Print</span>
+            </button>
+        </div>
+
+        <main class="grid-layout" role="main">
             <!-- Input Section -->
             <section class="card input-section">
                 <h2 data-i18n="inputTitle">Patient & Dosing Information</h2>
@@ -119,7 +146,7 @@
             </section>
 
             <!-- Results Section -->
-            <section class="card results-section" id="resultsSection">
+            <section class="card results-section" id="resultsSection" aria-live="polite">
                 <h2 data-i18n="resultsTitle">TDM Analysis Results</h2>
 
                 <div class="results-grid">
@@ -210,7 +237,27 @@
             </section>
         </main>
     </div>
-    <script src="script.js"></script>
+    <!-- Disclaimer Modal -->
+    <div id="disclaimerModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <h2 data-i18n="disclaimerTitle">Educational Use Only</h2>
+            <p data-i18n="disclaimerBody">This calculator is for educational and research purposes only. It has NOT been validated for clinical use. Do NOT use this tool for actual patient care decisions without proper clinical validation and expert review.</p>
+            <div class="modal-watermark">NOT FOR CLINICAL USE</div>
+            <label class="modal-checkbox-label">
+                <input type="checkbox" id="disclaimerCheckbox">
+                <span data-i18n="disclaimerAgree">I understand and agree that this is for educational purposes only</span>
+            </label>
+            <button id="disclaimerAcceptBtn" class="btn-primary" disabled data-i18n="disclaimerAccept">Accept & Continue</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(() => {});
+        }
+    </script>
 </body>
 
 </html>

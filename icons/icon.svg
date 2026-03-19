@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#0ea5e9"/>
+  <text x="256" y="200" text-anchor="middle" font-family="Arial,sans-serif" font-size="80" font-weight="700" fill="white">TDM</text>
+  <path d="M128 280 L200 350 L256 270 L310 330 L384 250" stroke="white" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256" y="430" text-anchor="middle" font-family="Arial,sans-serif" font-size="48" font-weight="500" fill="rgba(255,255,255,0.8)">Vancomycin</text>
+</svg>

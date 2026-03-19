@@ -189,7 +189,7 @@ label {
     margin-bottom: 0.5rem;
 }
 
-input, select {
+input:not([type="checkbox"]), select {
     width: 100%;
     padding: 0.75rem 1rem;
     border-radius: var(--radius-md);
@@ -201,7 +201,7 @@ input, select {
     transition: all 0.2s;
 }
 
-input:focus, select:focus {
+input:not([type="checkbox"]):focus, select:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
@@ -788,4 +788,225 @@ input:-webkit-autofill:active {
 
 [data-theme="dark"] .measurement-entry.highlight {
     box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+/* Disclaimer Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 2px solid var(--warning-color);
+}
+
+.modal-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.modal-content h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--warning-color);
+    border-bottom: none;
+}
+
+.modal-content p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+}
+
+.modal-watermark {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent-color);
+    padding: 0.5rem;
+    border: 1px dashed var(--accent-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+}
+
+.modal-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    text-align: left;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+}
+
+.modal-checkbox-label input[type="checkbox"] {
+    width: auto;
+    min-width: 18px;
+    height: 18px;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+.modal-content .btn-primary {
+    margin-top: 0.5rem;
+}
+
+.modal-content .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Results Watermark */
+.results-watermark {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--accent-color);
+    opacity: 0.7;
+    padding: 0.5rem;
+    border-top: 1px dashed var(--accent-color);
+    margin-top: 1.5rem;
+}
+
+/* Validation Error Styles */
+.input-group .validation-error {
+    color: var(--accent-color);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.input-group.has-error input,
+.input-group.has-error select {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+}
+
+.input-group.has-error .validation-error {
+    display: block;
+}
+
+/* Action Bar */
+.action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.action-btn svg {
+    flex-shrink: 0;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        padding: 0;
+        background: white;
+        color: black;
+    }
+
+    .controls, .action-bar, .toggle-btn, #calculateBtn,
+    .btn-primary, .btn-secondary, .btn-remove,
+    #addMeasurementBtn, #simulateBtn, .simulation-box,
+    .modal-overlay {
+        display: none !important;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    }
+
+    .grid-layout {
+        display: block;
+    }
+
+    .results-section {
+        page-break-before: auto;
+    }
+
+    .results-watermark {
+        color: #999 !important;
+        opacity: 1 !important;
+        font-size: 0.85rem !important;
+        border-top: 2px solid #999 !important;
+        padding-top: 0.75rem !important;
+        margin-top: 2rem !important;
+    }
+
+    .chart-container canvas {
+        max-height: 400px !important;
+    }
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    z-index: 10000;
+    font-size: 0.875rem;
+}
+
+.skip-link:focus {
+    top: 0;
 }

@@ -91,7 +91,30 @@ const translations = {
         currentRegimen: 'Current',
         predicted: 'Predicted',
         measured: 'Measured',
-        recommendChange: 'Consider changing from %CURRENT% to %RECOMMENDED%. Expected AUC: %NEWAUC% mg·h/L (current: %OLDAUC% mg·h/L).'
+        recommendChange: 'Consider changing from %CURRENT% to %RECOMMENDED%. Expected AUC: %NEWAUC% mg·h/L (current: %OLDAUC% mg·h/L).',
+        // Disclaimer
+        disclaimerTitle: 'Educational Use Only',
+        disclaimerBody: 'This calculator is for educational and research purposes only. It has NOT been validated for clinical use. Do NOT use this tool for actual patient care decisions without proper clinical validation and expert review.',
+        disclaimerAgree: 'I understand and agree that this is for educational purposes only',
+        disclaimerAccept: 'Accept & Continue',
+        resultsWatermark: 'FOR EDUCATIONAL/RESEARCH USE ONLY — NOT FOR CLINICAL DECISIONS',
+        // Validation
+        valAgeRange: 'Age must be between 18 and 120 years',
+        valHeightRange: 'Height must be between 100 and 250 cm',
+        valWeightRange: 'Weight must be between 20 and 300 kg',
+        valScrRange: 'Serum creatinine must be between 0.1 and 15 mg/dL',
+        valDoseRange: 'Dose must be between 100 and 5000 mg',
+        valIntervalRange: 'Interval must be between 4 and 72 hours',
+        valConcRange: 'Concentration must be between 0.1 and 100 mg/L',
+        valDoseWarning: 'Warning: Unusual dose detected. Please verify.',
+        valCrclWarning: 'Note: Cockcroft-Gault may be less accurate for this patient.',
+        saveData: 'Save Data',
+        loadData: 'Load Data',
+        printResults: 'Print',
+        dataSaved: 'Patient data saved successfully.',
+        dataLoaded: 'Patient data loaded successfully.',
+        noSavedData: 'No saved patient data found.',
+        confirmLoad: 'Load saved patient data? Current values will be overwritten.'
     },
     ko: {
         title: '반코마이신 TDM 계산기',
@@ -184,7 +207,30 @@ const translations = {
         currentRegimen: '현재',
         predicted: '예측값',
         measured: '측정값',
-        recommendChange: '%CURRENT%에서 %RECOMMENDED%로 변경을 고려하세요. 예상 AUC: %NEWAUC% mg·h/L (현재: %OLDAUC% mg·h/L).'
+        recommendChange: '%CURRENT%에서 %RECOMMENDED%로 변경을 고려하세요. 예상 AUC: %NEWAUC% mg·h/L (현재: %OLDAUC% mg·h/L).',
+        // Disclaimer
+        disclaimerTitle: '교육 목적 전용',
+        disclaimerBody: '이 계산기는 교육 및 연구 목적으로만 사용됩니다. 임상 사용을 위한 검증이 이루어지지 않았습니다. 적절한 임상 검증과 전문가 검토 없이 실제 환자 치료 결정에 이 도구를 사용하지 마세요.',
+        disclaimerAgree: '이것이 교육 목적으로만 사용됨을 이해하고 동의합니다',
+        disclaimerAccept: '동의 및 계속',
+        resultsWatermark: '교육/연구 목적 전용 — 임상 결정에 사용 불가',
+        // Validation
+        valAgeRange: '나이는 18세에서 120세 사이여야 합니다',
+        valHeightRange: '키는 100cm에서 250cm 사이여야 합니다',
+        valWeightRange: '체중은 20kg에서 300kg 사이여야 합니다',
+        valScrRange: '혈청 크레아티닌은 0.1에서 15 mg/dL 사이여야 합니다',
+        valDoseRange: '용량은 100mg에서 5000mg 사이여야 합니다',
+        valIntervalRange: '투약 간격은 4시간에서 72시간 사이여야 합니다',
+        valConcRange: '농도는 0.1에서 100 mg/L 사이여야 합니다',
+        valDoseWarning: '경고: 비정상적인 용량이 감지되었습니다. 확인해주세요.',
+        valCrclWarning: '참고: 이 환자에서 Cockcroft-Gault 정확도가 낮을 수 있습니다.',
+        saveData: '데이터 저장',
+        loadData: '데이터 불러오기',
+        printResults: '인쇄',
+        dataSaved: '환자 데이터가 저장되었습니다.',
+        dataLoaded: '환자 데이터를 불러왔습니다.',
+        noSavedData: '저장된 환자 데이터가 없습니다.',
+        confirmLoad: '저장된 환자 데이터를 불러오시겠습니까? 현재 값이 덮어씌워집니다.'
     }
 };
 
@@ -194,6 +240,28 @@ let pkChart = null; // Global chart variable
 let individualizedPK = null; // Stores fitted PK parameters for dose simulation
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ==========================================
+    // Disclaimer Modal
+    // ==========================================
+    const disclaimerModal = document.getElementById('disclaimerModal');
+    const disclaimerCheckbox = document.getElementById('disclaimerCheckbox');
+    const disclaimerAcceptBtn = document.getElementById('disclaimerAcceptBtn');
+
+    if (sessionStorage.getItem('disclaimerAccepted')) {
+        disclaimerModal.classList.add('hidden');
+    }
+
+    disclaimerCheckbox.addEventListener('change', () => {
+        disclaimerAcceptBtn.disabled = !disclaimerCheckbox.checked;
+    });
+
+    disclaimerAcceptBtn.addEventListener('click', () => {
+        if (disclaimerCheckbox.checked) {
+            disclaimerModal.classList.add('hidden');
+            sessionStorage.setItem('disclaimerAccepted', 'true');
+        }
+    });
+
     // Get all DOM elements first
     const calculateBtn = document.getElementById('calculateBtn');
 
@@ -271,6 +339,100 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update html lang attribute
         document.documentElement.lang = currentLang;
     }
+
+    // ==========================================
+    // Input Validation
+    // ==========================================
+
+    const validationRules = {
+        age:      { min: 18,  max: 120, key: 'valAgeRange' },
+        height:   { min: 100, max: 250, key: 'valHeightRange' },
+        weight:   { min: 20,  max: 300, key: 'valWeightRange' },
+        scr:      { min: 0.1, max: 15,  key: 'valScrRange' },
+        dose:     { min: 100, max: 5000, key: 'valDoseRange' },
+        interval: { min: 4,   max: 72,  key: 'valIntervalRange' }
+    };
+
+    function validateField(input, ruleName) {
+        const rule = validationRules[ruleName];
+        if (!rule) return true;
+
+        const value = parseFloat(input.value);
+        const group = input.closest('.input-group');
+        if (!group) return true;
+
+        let errorEl = group.querySelector('.validation-error');
+        if (!errorEl) {
+            errorEl = document.createElement('small');
+            errorEl.className = 'validation-error';
+            group.appendChild(errorEl);
+        }
+
+        if (isNaN(value) || value < rule.min || value > rule.max) {
+            const t = translations[currentLang];
+            errorEl.textContent = t[rule.key];
+            group.classList.add('has-error');
+            return false;
+        }
+
+        errorEl.textContent = '';
+        group.classList.remove('has-error');
+        return true;
+    }
+
+    function validateAllInputs() {
+        const t = translations[currentLang];
+        let valid = true;
+        const warnings = [];
+
+        valid = validateField(ageInput, 'age') && valid;
+        valid = validateField(heightInput, 'height') && valid;
+        valid = validateField(weightInput, 'weight') && valid;
+        valid = validateField(scrInput, 'scr') && valid;
+        valid = validateField(doseInput, 'dose') && valid;
+        valid = validateField(intervalInput, 'interval') && valid;
+
+        // Check concentration values
+        const concInputs = document.querySelectorAll('.measured-conc');
+        concInputs.forEach(input => {
+            const val = parseFloat(input.value);
+            if (input.value && (isNaN(val) || val < 0.1 || val > 100)) {
+                const group = input.closest('.input-group');
+                let errorEl = group.querySelector('.validation-error');
+                if (!errorEl) {
+                    errorEl = document.createElement('small');
+                    errorEl.className = 'validation-error';
+                    group.appendChild(errorEl);
+                }
+                errorEl.textContent = t.valConcRange;
+                group.classList.add('has-error');
+                valid = false;
+            }
+        });
+
+        // Clinical warnings (non-blocking)
+        const dose = parseFloat(doseInput.value);
+        const weight = parseFloat(weightInput.value);
+        if (dose && weight && dose / weight > 30) {
+            warnings.push(t.valDoseWarning);
+        }
+
+        const age = parseFloat(ageInput.value);
+        const scr = parseFloat(scrInput.value);
+        if ((age && age > 85) || (weight && weight > 150) || (scr && scr < 0.4)) {
+            warnings.push(t.valCrclWarning);
+        }
+
+        return { valid, warnings };
+    }
+
+    // Add real-time validation on blur
+    Object.keys(validationRules).forEach(fieldName => {
+        const input = document.getElementById(fieldName);
+        if (input) {
+            input.addEventListener('blur', () => validateField(input, fieldName));
+        }
+    });
 
     // ==========================================
     // Measurement Management Functions
@@ -615,14 +777,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const startTime = new Date(startTimeInput.value);
 
         // Validate basic inputs
-        if (!age || !height || !weight || !scr || !dose || !interval) {
+        if (!age || !height || !weight || !scr || !dose || !interval || !startTimeInput.value) {
             alert(t.fillAllFields);
             return;
         }
 
-        if (!startTimeInput.value) {
-            alert(t.fillAllFields);
-            return;
+        // Run comprehensive validation
+        const { valid, warnings } = validateAllInputs();
+        if (!valid) return;
+
+        if (warnings.length > 0) {
+            const proceed = confirm(warnings.join('\n') + '\n\n' +
+                (currentLang === 'en' ? 'Do you want to proceed?' : '계속 진행하시겠습니까?'));
+            if (!proceed) return;
         }
 
         // 2. Collect measurements
@@ -712,6 +879,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show simulation and recommendations boxes
         document.getElementById('simulationBox').style.display = 'block';
         document.getElementById('doseRecommendationsBox').style.display = 'block';
+
+        // Add results watermark
+        let watermark = document.querySelector('.results-watermark');
+        if (!watermark) {
+            watermark = document.createElement('div');
+            watermark.className = 'results-watermark';
+            document.getElementById('resultsSection').appendChild(watermark);
+        }
+        watermark.textContent = t.resultsWatermark;
     }
 
     /**
