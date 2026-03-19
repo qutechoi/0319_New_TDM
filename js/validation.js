@@ -19,6 +19,17 @@ export function validateField(input, ruleName) {
     const rule = validationRules[ruleName];
     if (!rule) return true;
 
+    // ageMonths is always optional — skip validation if empty
+    if (ruleName === 'ageMonths' && input.value === '') {
+        const group = input.closest('.input-group');
+        if (group) {
+            const errorEl = group.querySelector('.validation-error');
+            if (errorEl) errorEl.textContent = '';
+            group.classList.remove('has-error');
+        }
+        return true;
+    }
+
     const value = parseFloat(input.value);
     const group = input.closest('.input-group');
     if (!group) return true;
@@ -51,8 +62,15 @@ export function validateAllInputs(inputs) {
     const warnings = [];
 
     // Validate main fields
+    const ageYears = parseInt((inputs.ageYears || {}).value) || 0;
+    const isPediatricAge = ageYears < 18;
+
     for (const [name, input] of Object.entries(inputs)) {
+        if (name === 'ageMonths' && !isPediatricAge) continue; // adults don't need months
         if (validationRules[name]) {
+            // Skip ageMonths validation if field is empty for adults (already skipped above)
+            // For pediatrics, only validate if value is entered (months is optional even for peds)
+            if (name === 'ageMonths' && input.value === '') continue;
             valid = validateField(input, name) && valid;
         }
     }
