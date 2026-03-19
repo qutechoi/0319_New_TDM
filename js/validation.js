@@ -55,22 +55,20 @@ export function validateField(input, ruleName) {
 
 /**
  * Validate all inputs and return { valid, warnings }
+ * ageMonths is always optional — Schwartz equation applies up to age 18 (conventional cutoff).
+ * If ageYears >= 18, months field is irrelevant and skipped entirely.
  */
 export function validateAllInputs(inputs) {
     const t = translations[getLang()];
     let valid = true;
     const warnings = [];
 
-    // Validate main fields
     const ageYears = parseInt((inputs.ageYears || {}).value) || 0;
-    const isPediatricAge = ageYears < 18;
 
     for (const [name, input] of Object.entries(inputs)) {
-        if (name === 'ageMonths' && !isPediatricAge) continue; // adults don't need months
+        // ageMonths: skip if adult (≥18) or if field is empty (months always optional)
+        if (name === 'ageMonths' && (ageYears >= 18 || input.value === '')) continue;
         if (validationRules[name]) {
-            // Skip ageMonths validation if field is empty for adults (already skipped above)
-            // For pediatrics, only validate if value is entered (months is optional even for peds)
-            if (name === 'ageMonths' && input.value === '') continue;
             valid = validateField(input, name) && valid;
         }
     }
@@ -100,7 +98,6 @@ export function validateAllInputs(inputs) {
         warnings.push(t.valDoseWarning);
     }
 
-    const ageYears = parseInt((inputs.ageYears || inputs.age || {}).value) || 0;
     const scr = parseFloat(inputs.scr.value);
     if ((ageYears > 85) || (weight && weight > 150) || (scr && scr < 0.4)) {
         warnings.push(t.valCrclWarning);
